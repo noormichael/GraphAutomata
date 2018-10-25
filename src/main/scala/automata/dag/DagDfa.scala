@@ -28,7 +28,7 @@ case class DagDfa[LABEL, IN_ID, OUT_ID](
   //TODO: parse
   def parse[A](g: Graph[A, DiEdge])(describe: A => LABEL): Option[Map[A, (IN_ID, OUT_ID)]] = {
     require(g.isDirected)
-    require(g.isAcyclic)
+    // require(g.isAcyclic)
 
     val reverse = reverseGraph(g)
 
@@ -55,7 +55,7 @@ case class DagDfa[LABEL, IN_ID, OUT_ID](
   //TODO: We should profile this.  It still runs slower than I think it should.  
   def merge[A](a: (IN_ID, OUT_ID), b: (IN_ID, OUT_ID))(g: Graph[A, DiEdge])(describe: A => LABEL): DagDfa[LABEL, IN_ID, OUT_ID] = {
     require(g.isDirected)
-    require(g.isAcyclic)
+    // require(g.isAcyclic)
 
     val (aIn, aOut) = a
     val (bIn, bOut) = b

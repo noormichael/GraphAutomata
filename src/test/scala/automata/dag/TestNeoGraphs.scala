@@ -17,7 +17,7 @@ object TestNeoGraphs {
   sealed trait Desc
   case class Artifact(name: String) extends Desc
   case class Process(name: String) extends Desc
-
+  case class Agent(name: String) extends Desc
   case class EdgeDesc(t: String) extends Desc
 
 }
@@ -100,14 +100,18 @@ class TestNeoGraphs extends AssertionsForJUnit {
     case NeoNode(_, labels, prop) if labels == Set("Process") => {
       Process(prop.getOrElse("name", "???").asInstanceOf[String])
     }
+    case NeoNode(_, labels, prop) if labels == Set("Agent") => {
+      Agent("")
+    }
     case NeoRel(_, t, _) => EdgeDesc(t)
 
   }
 
-  def describe_original(nd: NeoData): Desc = nd match {
+  def describe_original(nd: NeoData): Desc = nd match { // [!!!] Windows Graph fails here, Matching done incorrectly
     case NeoNode(_, labels, prop) if labels == Set("Artifact") => Artifact(prop.getOrElse("path", "???").asInstanceOf[String])
     case NeoNode(_, labels, prop) if labels == Set("Process") => Process(prop.getOrElse("name", "???").asInstanceOf[String]) //TODO: Option
-    case NeoRel(_, t, _) => EdgeDesc(t)
+    case NeoNode(_, labels, prop) if labels == Set("Agent") => Agent("")
+    case NeoRel(_, t, _) => /*println(t);*/ EdgeDesc(t)
   }
 
   @Ignore
@@ -132,7 +136,7 @@ class TestNeoGraphs extends AssertionsForJUnit {
     // I REALLY hate how the prov arrows go in the opposite direction of cuasality, unlike literally everything ever.  who thought this was a good idea?
     val driver = GraphDatabase.driver("bolt://localhost", AuthTokens.basic("neo4j", "oldnew"))
     val session = driver.session();
-    val g = fullGraph(session)
+    val g: Graph[NeoData, DiEdge] = fullGraph(session)
     println("result")
     val dfa = LearnDeterministicDag.greedyLearn(g, 30)(describe, describe_original)
     LearnDeterministicDag.writeGrammar(dfa)

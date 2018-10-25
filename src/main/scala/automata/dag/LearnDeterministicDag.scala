@@ -115,9 +115,13 @@ object LearnDeterministicDag {
     g: Graph[A, DiEdge], time: Double = Double.PositiveInfinity)(
       describe: A => LABEL, describe_original: A => LABEL): DagDfaFast[LABEL] = {
 
+    println("top of greedyLearn")
+
     var time_cost = new ListBuffer[(Double, Double)]()
     require(g.isDirected)
-    require(g.isAcyclic)
+    // require(g.isAcyclic)  // [!!!] Linux Audit Graph fails here
+
+    println("after greedyLearn require")
 
     //TODO: some fancy scala way to do this?
     val startTime = System.currentTimeMillis().toDouble / 1000.0

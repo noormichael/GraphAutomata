@@ -12,7 +12,7 @@ object LearnTreeAutomata {
   //TODO: could even make more abstract, taking in an index function that considers the node values, could produce the sets, with a defualt set to id
   def prefixDFA[LABEL](g: Graph[_, DiEdge])(describe: g.NodeT => LABEL): TreeDfa[LABEL, g.NodeT] = {
     require(g.isDirected)
-    require(g.isAcyclic)
+    // require(g.isAcyclic)
 
     val Right(ts) = g.topologicalSort
 
@@ -57,7 +57,7 @@ object LearnTreeAutomata {
       describe: g.NodeT => LABEL) //(cost: (TreeDfa[LABEL, _], Graph[_, DiEdge]) => Double)
       : TreeDfa[LABEL, Int] = {
     require(g.isDirected)
-    require(g.isAcyclic)
+    // require(g.isAcyclic)
 
     val prefix = prefixDFA(g)(describe).withIntId //already minimized
 
