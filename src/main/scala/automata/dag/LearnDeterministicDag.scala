@@ -115,24 +115,25 @@ object LearnDeterministicDag {
     g: Graph[A, DiEdge], time: Double = Double.PositiveInfinity)(
       describe: A => LABEL, describe_original: A => LABEL): DagDfaFast[LABEL] = {
 
-    println("top of greedyLearn")
+    // println("top of greedyLearn")
 
     var time_cost = new ListBuffer[(Double, Double)]()
     require(g.isDirected)
-    // require(g.isAcyclic)  // [!!!] Linux Audit Graph fails here
+    require(g.isAcyclic)  // [!!!] Firefox Audit Graph fails here
 
-    println("after greedyLearn require")
+    // println("after greedyLearn require")
 
     //TODO: some fancy scala way to do this?
     val startTime = System.currentTimeMillis().toDouble / 1000.0
     val endTime = startTime + time
     var timeLapsed = System.currentTimeMillis().toDouble
+    // println("Start Prefix Suffix DFA")
     val original_base = prefixSuffixDfa(g)(describe_original) //already minimized
     time_cost += (((System.currentTimeMillis().toDouble - timeLapsed) / 1000.0, original_base.mdl(g)(describe_original)))
 
     val TotalstartTime = System.currentTimeMillis().toDouble / 1000.0
     val base = prefixSuffixDfa(g)(describe) //already minimized
-    println("Done with Prefix Suffix DFA")
+    // println("Done with Prefix Suffix DFA")
     var knownCosts = Map[DagDfaFast[LABEL], Double](base -> base.mdl(g)(describe))
     var activeParents = Set[DagDfaFast[LABEL]](base) //TODO: should be a priority queue
     var lowestSeenCost = knownCosts.values.last

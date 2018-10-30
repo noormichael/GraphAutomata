@@ -14,7 +14,10 @@ object LearnTreeAutomata {
     require(g.isDirected)
     // require(g.isAcyclic)
 
-    val Right(ts) = g.topologicalSort
+    // println(g.topologicalSort)
+
+    val Right(ts) = g.topologicalSort   // Match Error
+    // scala.MatchError: Left(NeoNode(0,Set(Process),Map(Cont_ID -> , uid -> , name -> firefox.exe))) (of class scala.util.Left)
 
     var map = Map[g.NodeT, g.NodeT]()
 

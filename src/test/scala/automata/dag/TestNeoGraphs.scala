@@ -18,6 +18,7 @@ object TestNeoGraphs {
   case class Artifact(name: String) extends Desc
   case class Process(name: String) extends Desc
   case class Agent(name: String) extends Desc
+  case class Generic(name: String) extends Desc
   case class EdgeDesc(t: String) extends Desc
 
 }
@@ -103,6 +104,9 @@ class TestNeoGraphs extends AssertionsForJUnit {
     case NeoNode(_, labels, prop) if labels == Set("Agent") => {
       Agent("")
     }
+    case NeoNode(_, labels, prop) if labels == Set() => {
+      Generic("")
+    }
     case NeoRel(_, t, _) => EdgeDesc(t)
 
   }
@@ -111,6 +115,7 @@ class TestNeoGraphs extends AssertionsForJUnit {
     case NeoNode(_, labels, prop) if labels == Set("Artifact") => Artifact(prop.getOrElse("path", "???").asInstanceOf[String])
     case NeoNode(_, labels, prop) if labels == Set("Process") => Process(prop.getOrElse("name", "???").asInstanceOf[String]) //TODO: Option
     case NeoNode(_, labels, prop) if labels == Set("Agent") => Agent("")
+    case NeoNode(_, labels, prop) if labels == Set() => Generic("")
     case NeoRel(_, t, _) => /*println(t);*/ EdgeDesc(t)
   }
 
@@ -123,6 +128,24 @@ class TestNeoGraphs extends AssertionsForJUnit {
     println(g)
     println("result")
     println(LearnDeterministicDag.greedyLearn(g, 10)(describe, describe_original))
+  }
+
+  def dagGraph[A](g: Graph[A, DiEdge]): Graph[A, DiEdge] = {
+
+    val ns = scala.collection.mutable.Set[A]()
+    val es = scala.collection.mutable.Set[DiEdge[A]]()
+
+    for (n <- g.nodes){
+      ns.add(n)
+
+      for(g.EdgeT(in, out) <- g.edges){   // how to only get out-edges of node??
+        if((in == n) && !ns.contains(out)){
+          es.add((in.value ~> out.value))
+        }
+      }
+    }
+
+    return Graph.from(g.nodes, es.toSet)
   }
 
   // bigger graphs, may need to give the jvm needs more memory
@@ -138,7 +161,14 @@ class TestNeoGraphs extends AssertionsForJUnit {
     val session = driver.session();
     val g: Graph[NeoData, DiEdge] = fullGraph(session)
     println("result")
-    val dfa = LearnDeterministicDag.greedyLearn(g, 30)(describe, describe_original)
+
+    // create DAG out of g to remove cycles
+    // remove all back edges in dfs traversal of g
+
+    val ng = dagGraph(g)
+
+    val dfa = LearnDeterministicDag.greedyLearn(ng, 30)(describe, describe_original)
+    println(dfa)
     LearnDeterministicDag.writeGrammar(dfa)
   }
 

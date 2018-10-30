@@ -79,7 +79,7 @@ def openReadVals(bench_name,input_path):
                 
 def main():
     input_dir, output_dir = parseClArgs()
-    bench_names=["ftp"]
+    bench_names=["ffx"]
     stats = {}
     stats_time = {}
     macros = []
